@@ -1,7 +1,7 @@
 const  iconElement = document.querySelector(".weather-icon");
 const  tempElement = document.querySelector(".temperature-value");
-const  descElement = document.querySelector(".temperature-description");
-const  locationElement = document.querySelector(".location");
+const  descElement = document.querySelector(".temperature-description p");
+const  locationElement = document.querySelector(".location p");
 const  notificationElement = document.querySelector(".notification");
 
 const weather = {};
@@ -13,7 +13,6 @@ weather.temperature = {
 const KELVIN = 273;
 
 //API KEY
-// 82005d27a116c2880c8f0fcb866998a0
 const key = "ec8fc80768270f5e7894c106f81ac4b8";
 
 // Geolocation Support
@@ -45,22 +44,52 @@ function getWeather(latitude, longitude){
     console.log(api);
     
 
-    // const promise = fetch(api) .then( function(response){
-    //     let data = response.json();
-    //     return data;
-    // })
-    // promise.then(function(data){
-    //     weather.temperature.value = Math.floor(data.main.temp - KELVIN);
-    //     weather.description = data.weather[0].description;
-    //     weather.iconId = data.weather[0].icon;
-    //     weather.city = data.name;
-    //     weather.country = data.sys.country;
-    // })
-    // .then( function(){
-    //     displayWeather();
-    // });
-
-
+    fetch(api) .then( function(response){
+        let data = response.json();
+        return data;
+    })
+    .then(function(data){
+        weather.temperature.value = Math.floor(data.main.temp - KELVIN);
+        weather.description = data.weather[0].description;
+        weather.iconId = data.weather[0].icon;
+        weather.city = data.name;
+        weather.country = data.sys.country;
+    })
+    .then( function(){
+        displayWeather();
+    });
 }
 
+// function to display weather
+function displayWeather(){
+    iconElement.innerHTML = `<img src="icons/${weather.iconId}.png"/>`;
+    tempElement.innerHTML = `<p title="click to convert to fahrenheit">${weather.temperature.value}°<span>C</span></p>`;
+    descElement.innerHTML = weather.description;
+    locationElement.innerHTML = `${weather.city}, ${weather.country}`;
+}
 
+// C to F conversion
+function celsiusToFahrenheit(temperature){
+      return (temperature * 9/5) + 32;
+}
+
+// click temp for conversion
+tempElement.addEventListener("click", function(){
+    
+    
+    if(weather.temperature.value === undefined) return;
+        
+    if(weather.temperature.unit == "celsius"){
+      let fahrenheit = celsiusToFahrenheit(weather.temperature.value);
+      fahrenheit = Math.floor(fahrenheit);
+  
+      
+
+      tempElement.innerHTML =  `<p title="click to convert to celsius">${fahrenheit}°<span>F</span></p>`;
+      weather.temperature.unit = "fahrenheit";
+
+    }else{
+        tempElement.innerHTML = `<p title="click to convert to fahrenheit">${weather.temperature.value}°<span title="click to convert to fahrenheit">C</span></p>`;
+        weather.temperature.unit = "celcius";
+    }
+})
